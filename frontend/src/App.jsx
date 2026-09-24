@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import PublicLayout from './layouts/PublicLayout'
+import DashboardLayout from './layouts/DashboardLayout'
+import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
 
 function App() {
