@@ -1,117 +1,96 @@
-# Authentication
+# Authentication API Documentation
 
-## 1. Overview
+## Overview
 
-PhoenixTASKFLOW uses JWT-based authentication to protect private API resources.
+PhoenixTASKFLOW uses JWT (JSON Web Token) authentication to secure protected API endpoints.
 
-Authentication consists of:
+Passwords are hashed using `bcryptjs` before they are stored in MongoDB. Passwords are never returned in API responses.
 
-- User registration
-- User login
-- Password hashing with bcryptjs
-- JWT token generation
-- JWT authentication middleware
-- Current authenticated user retrieval
+Authentication flow:
 
-Passwords are hashed before being stored in MongoDB and are never returned in API responses.
+1. A user registers or logs in.
+2. The backend verifies the user's credentials.
+3. The backend generates a JWT.
+4. The client sends the token with protected requests.
+5. The authentication middleware verifies the token and identifies the user.
 
 ---
 
-## 2. User Registration
+## Authentication Endpoints
 
-**Endpoint:**
+### Register
 
-`POST /api/auth/register`
+**POST** `/api/auth/register`
 
-A new user provides:
+Creates a new employee account.
 
-- name
-- email
-- password
-- position
-- department
+New users are assigned the `employee` role by default.
 
-New users are registered with the `employee` role by default.
-
-The backend validates the submitted data, checks whether the email already exists, hashes the password, creates the user, and returns a JWT token.
-
-### Example Request
+### Request Body
 
 ```json
 {
-  "name": "Test Employee",
-  "email": "testemployee@example.com",
-  "password": "Password123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
   "position": "Teacher",
   "department": "DEPARTMENT_ID"
 }
 
-Successful Response
+Validation
 
-HTTP 201 Created
+name is required.
+email must be a valid email address.
+password must contain at least 8 characters.
+position is required.
+department is required.
+Email addresses must be unique.
+
+Successful Response
 
 {
   "success": true,
   "message": "Registration successful",
   "data": {
     "user": {
-      "id": "USER_ID",
-      "name": "Test Employee",
-      "email": "testemployee@example.com",
+      "_id": "USER_ID",
+      "name": "John Doe",
+      "email": "john@example.com",
       "role": "employee",
       "position": "Teacher",
       "department": "DEPARTMENT_ID",
-      "isActive": true,
-      "createdAt": "DATE",
-      "updatedAt": "DATE"
+      "isActive": true
     },
     "token": "JWT_TOKEN"
   }
 }
 
-Password Hashing
 
-Passwords are hashed using bcryptjs before being stored in the database.
+The password is not included in the response.
 
-The original password is never stored as plain text.
-
-During login, the submitted password is compared with the stored hash using bcrypt.
-
-4. User Login
-
-Endpoint:
+Login
 
 POST /api/auth/login
 
-A registered user provides their email and password.
+Authenticates an existing user and returns a JWT.
 
-The backend:
-
-Validates the request.
-Finds the user by email.
-Compares the password with the stored bcrypt hash.
-Checks that the account is active.
-Generates a JWT token.
-Returns the authenticated user's information and token.
-Example Request
+Request Body
 
 {
-  "email": "testemployee@example.com",
-  "password": "Password123"
+  "email": "john@example.com",
+  "password": "password123"
 }
 
 Successful Response
-
-HTTP 200 OK
 
 {
   "success": true,
   "message": "Login successful",
   "data": {
     "user": {
-      "id": "USER_ID",
-      "name": "Test Employee",
-      "email": "testemployee@example.com",
+      "_id": "USER_ID",
+      "name": "John Doe",
+      "email": "john@example.com",
       "role": "employee",
       "position": "Teacher",
       "department": "DEPARTMENT_ID",
@@ -121,167 +100,171 @@ HTTP 200 OK
   }
 }
 
-5. JWT Authentication
+The password is not included in the response.
 
-After successful registration or login, the backend generates a JSON Web Token (JWT).
-
-The token contains the authenticated user's ID and expires after 7 days.
-
-Protected requests must include the token using the Bearer authentication format:
-
-Authorization: Bearer JWT_TOKEN
-
-6. Authentication Middleware
-
-Protected routes use the authentication middleware.
-
-The middleware:
-
-Checks for an Authorization header.
-Verifies that it uses the Bearer format.
-Extracts the JWT.
-Verifies the token using the server's JWT secret.
-Finds the corresponding user.
-Excludes the password from the retrieved user.
-Checks that the account is active.
-Stores the authenticated user in req.user.
-
-Routes can then use req.user to identify the currently authenticated user.
-
-7. Current User
-
-Endpoint:
+Get Current User
 
 GET /api/auth/me
 
-This protected endpoint returns information about the currently authenticated user.
+Returns the details of the currently authenticated user.
 
-A valid JWT must be supplied in the request.
+Authentication
+
+This endpoint requires a valid JWT.
+
+The token must be sent using the Bearer authentication scheme:
+
+Authorization: Bearer JWT_TOKEN
 
 Successful Response
 
-HTTP 200 OK
-
 {
   "success": true,
-  "message": "Current user retrieved successfully",
+  "message": "Authenticated user retrieved successfully",
   "data": {
-    "user": {
-      "_id": "USER_ID",
-      "name": "Test Employee",
-      "email": "testemployee@example.com",
-      "role": "employee",
-      "position": "Teacher",
-      "department": "DEPARTMENT_ID",
-      "isActive": true
-    }
+    "_id": "USER_ID",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "employee",
+    "position": "Teacher",
+    "department": "DEPARTMENT_ID",
+    "isActive": true
   }
 }
 
-The password is excluded from the response.
 
-. Authentication Errors
+JWT Authentication
+
+PhoenixTASKFLOW uses JSON Web Tokens for authentication.
+
+After successful registration or login, the backend generates a token containing the authenticated user's ID.
+
+The token is valid for 7 days.
+
+Protected requests must include the token in the request header:
+
+Authorization: Bearer JWT_TOKEN
+
+
+The authentication middleware:
+
+Checks whether an Authorization header exists.
+Extracts the Bearer token.
+Verifies the JWT.
+Finds the corresponding user.
+Excludes the user's password from the retrieved user data.
+Checks whether the user is active.
+Attaches the authenticated user to req.user.
+
+Password Security
+
+Passwords are hashed using bcryptjs before being stored in MongoDB.
+
+The application does not store users' passwords as plain text.
+
+Passwords are also excluded from user queries and API responses where authentication-related user data is returned.
+
+Authentication Middleware
+
+Protected routes use the authentication middleware:
+
+protect
+
+The middleware ensures that only authenticated users can access protected resources.
+
+If authentication succeeds, the authenticated user's information is made available through:
+
+req.user
+
+Other middleware and controllers can use req.user.role, req.user._id, and other user properties to enforce application permissions.
+
+Authentication Errors
+
 Missing Token
 
-HTTP 401 Unauthorized
+If a protected endpoint is accessed without authentication:
 
 {
   "success": false,
   "message": "Authentication required",
   "data": null
 }
+
+
 Invalid or Expired Token
 
-HTTP 401 Unauthorized
+An invalid or expired JWT results in an authentication error.
 
-{
-  "success": false,
-  "message": "Invalid or expired token",
-  "data": null
-}
-Inactive Account
+User Not Found
 
-HTTP 403 Forbidden
+If the JWT refers to a user who no longer exists, the request is rejected.
 
-{
-  "success": false,
-  "message": "This account is inactive",
-  "data": null
-}
+Inactive User
 
-Invalid Login Credentials
+Inactive users cannot access protected resources.
 
-HTTP 401 Unauthorized
 
-{
-  "success": false,
-  "message": "Invalid email or password",
-  "data": null
-}
+Authentication and Authorization
 
-9. Authentication Testing
+Authentication determines who the user is.
 
-The authentication flow was tested using Postman.
+Authorization determines what the authenticated user is allowed to do.
 
-Registration Test
+PhoenixTASKFLOW has three roles:
 
-Endpoint:
+Role		General Access
+admin		Organization-wide management
+manager		Department-level management
+employee	Personal tasks and profile
 
-POST /api/auth/register
+Role-based authorization is handled separately from JWT authentication.
 
-Result: 201 Created
-
-The test user was successfully created and a JWT token was returned.
-
-Login Test
-
-Endpoint:
-
-POST /api/auth/login
-
-Result: 200 OK
-
-The test user's credentials were accepted and a JWT token was returned.
-
-Current User Test
-
-Endpoint:
-
-GET /api/auth/me
-
-Result: 200 OK
-
-The authenticated user's details were successfully returned using the JWT Bearer token.
-
-The response did not expose the user's password.
-
-10. Authentication Flow
+Authentication Flow
 
 User
   ↓
 Register / Login
   ↓
-Express Route
+Backend validates credentials
   ↓
-Validation
+Password verification / hashing
   ↓
-Authentication Controller
+JWT generated
   ↓
-bcrypt Password Verification
+Client stores token
   ↓
-JWT Generation
+Client sends Bearer token
   ↓
-JWT Token Returned
+Authentication middleware
   ↓
-Protected Request
+JWT verified
   ↓
-Authentication Middleware
+User identified
   ↓
-JWT Verification
+Protected controller
   ↓
-User Retrieved
-  ↓
-req.user
-  ↓
-Protected Controller
+Response
 
+
+Testing Authentication
+
+Authentication endpoints can be tested using Postman.
+
+Recommended test sequence:
+
+Register a user.
+Login with the registered credentials.
+Copy the returned JWT.
+Send the token as a Bearer token.
+Test GET /api/auth/me.
+Test protected endpoints with and without the token.
+Test invalid credentials.
+Test invalid or expired tokens.
+
+
+Authentication Endpoints Summary
+
+Method		Endpoint			Authentication
+POST		/api/auth/register		Public
+POST		/api/auth/login			Public
+GET		/api/auth/me			Required

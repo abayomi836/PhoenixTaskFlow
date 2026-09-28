@@ -142,6 +142,16 @@ const getTaskById = async (req, res, next) => {
 // Create a task
 const createTask = async (req, res, next) => {
   try {
+
+    // Employees cannot create tasks
+    if (req.user.role === "employee") {
+      return res.status(403).json({
+        success: false,
+        message: "Employees cannot create tasks",
+        data: null,
+      });
+    }
+
     const {
       title,
       description,
