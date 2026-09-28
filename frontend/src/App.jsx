@@ -1,17 +1,21 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
 import PublicLayout from './layouts/PublicLayout'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProtectedRoute from './components/ProtectedRoute'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import './App.css'
 
 function App() {
 return (
+<AuthProvider>
 <BrowserRouter>
 <Routes>
 <Route element={<PublicLayout />}>
 <Route path="/" element={<div>Home</div>} />
-<Route path="/login" element={<div>Login</div>} />
-<Route path="/register" element={<div>Register</div>} />
+<Route path="/login" element={<LoginPage />} />
+<Route path="/register" element={<RegisterPage />} />
 </Route>
 
 <Route element={<ProtectedRoute />}>
@@ -28,6 +32,7 @@ return (
 </Route>
 </Routes>
 </BrowserRouter>
+</AuthProvider>
 )
 }
 
