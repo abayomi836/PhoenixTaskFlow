@@ -21,3 +21,7 @@ Thumbs.db
 
 # Editor files
 .vscode/
+
+# Postman workspace files
+.postman/
+postman/
