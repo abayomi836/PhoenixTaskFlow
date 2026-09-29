@@ -4,6 +4,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 import {
   getTaskAssignees,
@@ -11,37 +12,29 @@ import {
   updateTask,
 } from '../services/taskService'
 
-const DEMO_MANAGER = {
-  _id: 'mock-manager-1',
-  name: 'Jane Manager',
-  role: 'manager',
-  department: {
-    _id: 'mock-department-1',
-    name: 'Academic',
-  },
-}
-
 const getId = (value) =>
   typeof value === 'string' ? value : value?._id
 
 const getErrorMessage = (error) =>
-  error instanceof Error ? error.message : 'Something went wrong.'
+  error instanceof Error
+    ? error.message
+    : 'Something went wrong.'
 
 function EditTaskPage({
   taskId: suppliedTaskId,
-  currentUser = DEMO_MANAGER,
 }) {
+  const { user } = useAuth()
   const { id: routeTaskId } = useParams()
   const navigate = useNavigate()
 
   const taskId = suppliedTaskId || routeTaskId
 
-  const role = currentUser?.role
+  const role = user?.role
   const isAdmin = role === 'admin'
   const isManager = role === 'manager'
 
   const managerDepartmentId = getId(
-    currentUser?.department
+    user?.department,
   )
 
   const [task, setTask] = useState(null)
@@ -81,7 +74,9 @@ function EditTaskPage({
           getTaskAssignees(),
         ])
 
-        if (!active) return
+        if (!active) {
+          return
+        }
 
         if (!loadedTask) {
           setTask(null)
@@ -95,7 +90,8 @@ function EditTaskPage({
 
         setForm({
           title: loadedTask.title || '',
-          description: loadedTask.description || '',
+          description:
+            loadedTask.description || '',
           assignedTo:
             getId(loadedTask.assignedTo) || '',
           priority:
@@ -106,7 +102,9 @@ function EditTaskPage({
         })
       } catch (loadError) {
         if (active) {
-          setError(getErrorMessage(loadError))
+          setError(
+            getErrorMessage(loadError),
+          )
         }
       } finally {
         if (active) {
@@ -131,7 +129,7 @@ function EditTaskPage({
       return employees.filter(
         (employee) =>
           getId(employee.department) ===
-          managerDepartmentId
+          managerDepartmentId,
       )
     }
 
@@ -145,7 +143,8 @@ function EditTaskPage({
 
   const managerOwnsTask =
     isManager &&
-    getId(task?.department) === managerDepartmentId
+    getId(task?.department) ===
+      managerDepartmentId
 
   const canEdit =
     isAdmin || managerOwnsTask
@@ -165,14 +164,14 @@ function EditTaskPage({
 
     if (!canEdit) {
       setError(
-        'You do not have permission to edit this task.'
+        'You do not have permission to edit this task.',
       )
       return
     }
 
     if (isManager && !managerDepartmentId) {
       setError(
-        'Your manager account is missing a department.'
+        'Your manager account is missing a department.',
       )
       return
     }
@@ -189,11 +188,12 @@ function EditTaskPage({
         task._id,
         {
           title: form.title.trim(),
-          description: form.description.trim(),
+          description:
+            form.description.trim(),
           assignedTo: form.assignedTo,
           priority: form.priority,
           dueDate: form.dueDate,
-        }
+        },
       )
 
       if (!updatedTask) {
@@ -202,9 +202,13 @@ function EditTaskPage({
         return
       }
 
-      navigate(`/tasks/${updatedTask._id}`)
+      navigate(
+        `/tasks/${updatedTask._id}`,
+      )
     } catch (saveError) {
-      setError(getErrorMessage(saveError))
+      setError(
+        getErrorMessage(saveError),
+      )
       setSaving(false)
     }
   }
@@ -251,7 +255,8 @@ function EditTaskPage({
         <h1>Edit task</h1>
 
         <p role="alert">
-          You do not have permission to edit this task.
+          You do not have permission to edit
+          this task.
         </p>
 
         <Link to={`/tasks/${task._id}`}>
@@ -352,28 +357,34 @@ function EditTaskPage({
             value={form.assignedTo}
             onChange={handleChange}
             required
-            disabled={eligibleEmployees.length === 0}
+            disabled={
+              eligibleEmployees.length === 0
+            }
           >
             <option value="">
               Select an active employee
             </option>
 
-            {eligibleEmployees.map((employee) => (
-              <option
-                key={employee._id}
-                value={employee._id}
-              >
-                {employee.name} —{' '}
-                {employee.position || 'Employee'}
-              </option>
-            ))}
+            {eligibleEmployees.map(
+              (employee) => (
+                <option
+                  key={employee._id}
+                  value={employee._id}
+                >
+                  {employee.name} —{' '}
+                  {employee.position ||
+                    'Employee'}
+                </option>
+              ),
+            )}
           </select>
         </label>
 
         {eligibleEmployees.length === 0 && (
           <p role="status">
-            No active employees are available in
-            the permitted department.
+            No active employees are
+            available in the permitted
+            department.
           </p>
         )}
 
@@ -393,9 +404,15 @@ function EditTaskPage({
             onChange={handleChange}
             required
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="low">
+              Low
+            </option>
+            <option value="medium">
+              Medium
+            </option>
+            <option value="high">
+              High
+            </option>
           </select>
         </label>
 
@@ -432,10 +449,14 @@ function EditTaskPage({
               eligibleEmployees.length === 0
             }
           >
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving
+              ? 'Saving…'
+              : 'Save changes'}
           </button>
 
-          <Link to={`/tasks/${task._id}`}>
+          <Link
+            to={`/tasks/${task._id}`}
+          >
             Cancel
           </Link>
         </div>

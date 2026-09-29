@@ -1,25 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import {
   createTask,
   getTaskAssignees,
 } from '../services/taskService'
 
-const DEMO_MANAGER = {
-  _id: 'mock-manager-1',
-  name: 'Jane Manager',
-  role: 'manager',
-  department: {
-    _id: 'mock-department-1',
-    name: 'Academic',
-  },
-}
-
 const getId = (value) =>
   typeof value === 'string' ? value : value?._id
 
 const getErrorMessage = (error) =>
-  error instanceof Error ? error.message : 'Something went wrong.'
+  error instanceof Error
+    ? error.message
+    : 'Something went wrong.'
 
 const getTodayDate = () => {
   const today = new Date()
@@ -30,15 +23,16 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`
 }
 
-function CreateTaskPage({ currentUser = DEMO_MANAGER }) {
+function CreateTaskPage() {
+  const { user } = useAuth()
   const navigate = useNavigate()
 
-  const role = currentUser?.role
+  const role = user?.role
   const isAdmin = role === 'admin'
   const isManager = role === 'manager'
   const canCreate = isAdmin || isManager
 
-  const managerDepartmentId = getId(currentUser?.department)
+  const managerDepartmentId = getId(user?.department)
 
   const [employees, setEmployees] = useState([])
   const [employeesLoading, setEmployeesLoading] = useState(true)
@@ -90,7 +84,8 @@ function CreateTaskPage({ currentUser = DEMO_MANAGER }) {
     if (isManager) {
       return employees.filter(
         (employee) =>
-          getId(employee.department) === managerDepartmentId
+          getId(employee.department) ===
+          managerDepartmentId,
       )
     }
 
@@ -116,12 +111,16 @@ function CreateTaskPage({ currentUser = DEMO_MANAGER }) {
     setError('')
 
     if (!canCreate) {
-      setError('You do not have permission to create tasks.')
+      setError(
+        'You do not have permission to create tasks.',
+      )
       return
     }
 
     if (isManager && !managerDepartmentId) {
-      setError('Your manager account is missing a department.')
+      setError(
+        'Your manager account is missing a department.',
+      )
       return
     }
 
