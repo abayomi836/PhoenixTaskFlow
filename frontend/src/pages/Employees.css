@@ -1,0 +1,183 @@
+/* Employees.css — same design tokens as Dashboard.css */
+
+.employees {
+  --pf-bg: #fafaf9;
+  --pf-surface: #ffffff;
+  --pf-ink: #1c1e26;
+  --pf-ink-muted: #5a5e6b;
+  --pf-primary: #33418c;
+  --pf-active: #2f6b4f;
+  --pf-inactive: #b5482a;
+  --pf-border: #e6e5e1;
+
+  background: var(--pf-bg);
+  color: var(--pf-ink);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.employees__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.employees__header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.25rem;
+}
+
+.employees__scope {
+  color: var(--pf-ink-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.employees__create-btn {
+  background: var(--pf-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.employees__create-btn:hover {
+  opacity: 0.9;
+}
+
+.employees__state {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  color: var(--pf-ink-muted);
+}
+
+.employees__state--error {
+  color: var(--pf-inactive);
+  border-color: var(--pf-inactive);
+}
+
+.employees__form-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.employees__form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 30, 38, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.employees__form-wrapper--modal {
+  margin-bottom: 0;
+}
+
+.employees__row {
+  cursor: pointer;
+}
+
+.employees__row:hover {
+  background: rgba(51, 65, 140, 0.04);
+}
+
+.employees__toggle-btn {
+  font-family: inherit;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid var(--pf-border);
+  background: transparent;
+  color: var(--pf-ink-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.employees__toggle-btn:hover:not(:disabled) {
+  border-color: var(--pf-primary);
+  color: var(--pf-primary);
+}
+
+.employees__toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.employees__table th:last-child,
+.employees__table td:last-child {
+  text-align: right;
+}
+
+.employees__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.employees__table th {
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pf-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--pf-border);
+}
+
+.employees__table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--pf-border);
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.employees__table tr:last-child td {
+  border-bottom: none;
+}
+
+.employees__name {
+  font-weight: 500;
+}
+
+.employees__email {
+  color: var(--pf-ink-muted);
+  font-size: 0.8rem;
+}
+
+.employees__role {
+  text-transform: capitalize;
+}
+
+.employees__status {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.employees__status--active {
+  background: rgba(47, 107, 79, 0.1);
+  color: var(--pf-active);
+}
+
+.employees__status--inactive {
+  background: rgba(181, 72, 42, 0.1);
+  color: var(--pf-inactive);
+}

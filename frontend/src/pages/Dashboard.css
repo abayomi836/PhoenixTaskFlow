@@ -1,0 +1,124 @@
+/* Dashboard.css — design tokens for PhoenixTASKFLOW's Dashboard view */
+
+.dashboard {
+  --pf-bg: #fafaf9;
+  --pf-surface: #ffffff;
+  --pf-ink: #1c1e26;
+  --pf-ink-muted: #5a5e6b;
+  --pf-primary: #33418c;
+  --pf-completed: #2f6b4f;
+  --pf-overdue: #b5482a;
+  --pf-border: #e6e5e1;
+
+  background: var(--pf-bg);
+  color: var(--pf-ink);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.dashboard__header {
+  margin-bottom: 2rem;
+}
+
+.dashboard__header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.25rem;
+}
+
+.dashboard__scope {
+  color: var(--pf-ink-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.dashboard__state {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  color: var(--pf-ink-muted);
+}
+
+.dashboard__state--error {
+  color: var(--pf-overdue);
+  border-color: var(--pf-overdue);
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hero metric: the one bold element, per design principle */
+.dashboard__hero {
+  background: var(--pf-primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard__hero-value {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.dashboard__hero-label {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+/* Supporting stats: quiet, list-like, not competing cards */
+.dashboard__stats {
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stat-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--pf-border);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-row__value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-row__label {
+  color: var(--pf-ink-muted);
+  font-size: 0.9rem;
+}
+
+.stat-row--completed .stat-row__value {
+  color: var(--pf-completed);
+}
+
+.stat-row--overdue .stat-row__value {
+  color: var(--pf-overdue);
+}

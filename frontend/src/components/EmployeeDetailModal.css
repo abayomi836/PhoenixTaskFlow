@@ -1,0 +1,134 @@
+/* EmployeeDetailModal.css — same design tokens as Employees/EmployeeForm */
+
+.employee-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 30, 38, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.employee-modal {
+  --pf-bg: #fafaf9;
+  --pf-surface: #ffffff;
+  --pf-ink: #1c1e26;
+  --pf-ink-muted: #5a5e6b;
+  --pf-primary: #33418c;
+  --pf-active: #2f6b4f;
+  --pf-inactive: #b5482a;
+  --pf-border: #e6e5e1;
+
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--pf-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 12px 32px rgba(28, 30, 38, 0.18);
+}
+
+.employee-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.employee-modal__header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--pf-ink);
+}
+
+.employee-modal__close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--pf-ink-muted);
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+}
+
+.employee-modal__close:hover {
+  color: var(--pf-ink);
+}
+
+.employee-modal__details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1.25rem;
+}
+
+.employee-modal__details dt {
+  font-size: 0.8rem;
+  color: var(--pf-ink-muted);
+  font-weight: 500;
+}
+
+.employee-modal__details dd {
+  font-size: 0.9rem;
+  color: var(--pf-ink);
+  margin: 0;
+}
+
+.employee-modal__role {
+  text-transform: capitalize;
+}
+
+.employee-modal__status {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.employee-modal__status--active {
+  background: rgba(47, 107, 79, 0.1);
+  color: var(--pf-active);
+}
+
+.employee-modal__status--inactive {
+  background: rgba(181, 72, 42, 0.1);
+  color: var(--pf-inactive);
+}
+
+.employee-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.employee-modal__actions button {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--pf-border);
+  background: transparent;
+  color: var(--pf-ink-muted);
+}
+
+.employee-modal__actions button:hover:not(:disabled) {
+  border-color: var(--pf-primary);
+  color: var(--pf-primary);
+}
+
+.employee-modal__edit-btn {
+  background: var(--pf-primary) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 500;
+}
+
+.employee-modal__actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
