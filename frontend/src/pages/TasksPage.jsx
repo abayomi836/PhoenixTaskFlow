@@ -263,11 +263,11 @@ function TasksPage({
           borderRadius: "8px",
           padding: "0.75rem 1rem",
         }}
+      
       >
-        Demo mode: Task data is currently stored
-        locally so the Task Management developer
-        can test independently of authentication
-        and the backend.
+        {role === "employee"
+          ? "You can only view and update the status of tasks assigned to you."
+          : "You can view, create, edit, and delete tasks."}
       </p>
 
       <section
