@@ -5,6 +5,7 @@ import {
   useParams,
 } from 'react-router-dom'
 
+import { useAuth } from '../hooks/useAuth'
 import StatusBadge from '../components/StatusBadge'
 
 import {
@@ -13,16 +14,6 @@ import {
   isTaskOverdue,
   updateTaskStatus,
 } from '../services/taskService'
-
-const DEMO_MANAGER = {
-  _id: 'mock-manager-1',
-  name: 'Jane Manager',
-  role: 'manager',
-  department: {
-    _id: 'mock-department-1',
-    name: 'Academic',
-  },
-}
 
 const getId = (value) =>
   typeof value === 'string' ? value : value?._id
@@ -51,8 +42,8 @@ const getErrorMessage = (error) =>
 
 function TaskDetailsPage({
   taskId: suppliedTaskId,
-  currentUser = DEMO_MANAGER,
 }) {
+  const { user } = useAuth()
   const { id: routeTaskId } = useParams()
   const navigate = useNavigate()
 
@@ -67,8 +58,8 @@ function TaskDetailsPage({
   const [updatingStatus, setUpdatingStatus] =
     useState(false)
 
-  const role = currentUser?.role
-  const currentUserId = getId(currentUser)
+  const role = user?.role
+  const currentUserId = getId(user)
 
   const isAdmin = role === 'admin'
   const isManager = role === 'manager'
@@ -77,7 +68,7 @@ function TaskDetailsPage({
   const managerOwnsTask =
     isManager &&
     getId(task?.department) ===
-      getId(currentUser?.department)
+      getId(user?.department)
 
   const isAssignedEmployee =
     isEmployee &&

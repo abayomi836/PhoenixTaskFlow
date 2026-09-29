@@ -1,424 +1,154 @@
-const STORAGE_KEY = "phoenix-taskFlow.tasks.v1";
+import api from './api'
 
-const ALLOWED_STATUSES = ["pending", "in-progress", "completed"];
-const ALLOWED_PRIORITIES = ["low", "medium", "high"];
+const ALLOWED_STATUSES = ['pending', 'in-progress', 'completed']
+const ALLOWED_PRIORITIES = ['low', 'medium', 'high']
 
-const mockDepartments = {
-  academic: {
-    _id: "mock-department-1",
-    name: "Academic",
-  },
-  finance: {
-    _id: "mock-department-2",
-    name: "Finance",
-  },
-};
+export const getTaskAssignees = async () => {
+  const response = await api.get('/users', {
+    params: {
+      limit: 100,
+    },
+  })
 
-const mockEmployees = [
-  {
-    _id: "mock-user-1",
-    name: "John Doe",
-    email: "john@example.com",
-    position: "Teacher",
-    role: "employee",
-    isActive: true,
-    department: mockDepartments.academic,
-  },
-  {
-    _id: "mock-user-2",
-    name: "Alex Morgan",
-    email: "alex@example.com",
-    position: "Accountant",
-    role: "employee",
-    isActive: true,
-    department: mockDepartments.finance,
-  },
-  {
-    _id: "mock-user-3",
-    name: "Sarah Williams",
-    email: "sarah@example.com",
-    position: "Teacher",
-    role: "employee",
-    isActive: true,
-    department: mockDepartments.academic,
-  },
-  {
-    _id: "mock-user-inactive",
-    name: "Inactive Employee",
-    email: "inactive@example.com",
-    position: "Assistant",
-    role: "employee",
-    isActive: false,
-    department: mockDepartments.academic,
-  },
-];
+  const users = response.data.data.users || []
 
-const mockManager = {
-  _id: "mock-manager-1",
-  name: "Jane Manager",
-  email: "jane@example.com",
-  position: "Head of Department",
-  role: "manager",
-  department: mockDepartments.academic,
-};
-
-const mockAdmin = {
-  _id: "mock-admin-1",
-  name: "Admin User",
-  email: "admin@example.com",
-  position: "Administrator",
-  role: "admin",
-};
-
-const initialTasks = [
-  {
-    _id: "mock-task-1",
-    title: "Prepare monthly report",
-    description: "Prepare the September financial report.",
-    assignedTo: mockEmployees[0],
-    assignedBy: mockManager,
-    department: mockDepartments.academic,
-    priority: "high",
-    status: "pending",
-    dueDate: "2026-10-01T00:00:00.000Z",
-    completedAt: null,
-    createdAt: "2026-09-24T10:00:00.000Z",
-    updatedAt: "2026-09-24T10:00:00.000Z",
-  },
-  {
-    _id: "mock-task-2",
-    title: "Review staff attendance",
-    description: "Check and submit the weekly attendance records.",
-    assignedTo: mockEmployees[0],
-    assignedBy: mockManager,
-    department: mockDepartments.academic,
-    priority: "medium",
-    status: "in-progress",
-    dueDate: "2026-09-30T00:00:00.000Z",
-    completedAt: null,
-    createdAt: "2026-09-22T09:00:00.000Z",
-    updatedAt: "2026-09-25T14:30:00.000Z",
-  },
-  {
-    _id: "mock-task-3",
-    title: "Archive last month's records",
-    description: "Organize completed records in the department archive.",
-    assignedTo: mockEmployees[1],
-    assignedBy: mockManager,
-    department: mockDepartments.finance,
-    priority: "low",
-    status: "completed",
-    dueDate: "2026-09-20T00:00:00.000Z",
-    completedAt: "2026-09-19T15:00:00.000Z",
-    createdAt: "2026-09-15T08:00:00.000Z",
-    updatedAt: "2026-09-19T15:00:00.000Z",
-  },
-  {
-    _id: "mock-task-4",
-    title: "Submit department expenses",
-    description: "Collect and submit outstanding department expenses.",
-    assignedTo: mockEmployees[1],
-    assignedBy: mockManager,
-    department: mockDepartments.finance,
-    priority: "high",
-    status: "pending",
-    dueDate: "2026-09-24T00:00:00.000Z",
-    completedAt: null,
-    createdAt: "2026-09-18T11:00:00.000Z",
-    updatedAt: "2026-09-18T11:00:00.000Z",
-  },
-  {
-    _id: "mock-task-5",
-    title: "Prepare student attendance summary",
-    description: "Prepare the weekly student attendance summary.",
-    assignedTo: mockEmployees[2],
-    assignedBy: mockManager,
-    department: mockDepartments.academic,
-    priority: "medium",
-    status: "pending",
-    dueDate: "2026-10-03T00:00:00.000Z",
-    completedAt: null,
-    createdAt: "2026-09-25T08:00:00.000Z",
-    updatedAt: "2026-09-25T08:00:00.000Z",
-  },
-];
-
-const clone = (value) => JSON.parse(JSON.stringify(value));
-
-const getId = (value) =>
-  typeof value === "string" ? value : value?._id;
-
-const readTasks = () => {
-  try {
-    const storedTasks = localStorage.getItem(STORAGE_KEY);
-
-    if (storedTasks) {
-      const parsedTasks = JSON.parse(storedTasks);
-
-      if (Array.isArray(parsedTasks)) {
-        return parsedTasks;
-      }
-    }
-  } catch {
-    // Reset to demo data if localStorage contains invalid data.
-  }
-
-  const tasks = clone(initialTasks);
-  writeTasks(tasks);
-
-  return tasks;
-};
-
-const writeTasks = (tasks) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-};
-
-const getEmployee = (assignedTo) => {
-  const employeeId = getId(assignedTo);
-
-  const employee = mockEmployees.find(
-    (candidate) =>
-      candidate._id === employeeId && candidate.isActive,
-  );
-
-  if (!employee) {
-    throw new Error(
-      "Choose an active employee to assign this task to.",
-    );
-  }
-
-  return employee;
-};
-
-const validateTaskFields = (taskData) => {
-  const title = taskData.title?.trim();
-  const description = taskData.description?.trim();
-  const priority = taskData.priority;
-  const dueDate = taskData.dueDate;
-
-  if (!title) {
-    throw new Error("A task title is required.");
-  }
-
-  if (!description) {
-    throw new Error("A task description is required.");
-  }
-
-  if (!ALLOWED_PRIORITIES.includes(priority)) {
-    throw new Error("Choose a valid task priority.");
-  }
-
-  if (!dueDate || Number.isNaN(new Date(dueDate).getTime())) {
-    throw new Error("Enter a valid due date.");
-  }
-
-  const assignedTo = getEmployee(taskData.assignedTo);
-
-  return {
-    title,
-    description,
-    assignedTo,
-    department: assignedTo.department,
-    priority,
-    dueDate: new Date(dueDate).toISOString(),
-  };
-};
-
-export const getTaskAssignees = async () =>
-  clone(
-    mockEmployees
-      .filter((employee) => employee.isActive)
-      .map(({ _id, name, email, position, department }) => ({
-        _id,
-        name,
-        email,
-        position,
-        department,
-      })),
-  );
+  return users
+    .filter((user) => user.role === 'employee' && user.isActive)
+    .map(({ _id, name, email, position, department }) => ({
+      _id,
+      name,
+      email,
+      position,
+      department,
+    }))
+}
 
 export const getTasks = async (filters = {}) => {
-  const tasks = readTasks();
+  const response = await api.get('/tasks', {
+    params: {
+      status: filters.status || undefined,
+      priority: filters.priority || undefined,
+      department: filters.department || undefined,
+      assignedTo: filters.assignedTo || undefined,
+      search: filters.search?.trim() || undefined,
+      page: filters.page || 1,
+      limit: filters.limit || 10,
+    },
+  })
 
-  const search = filters.search?.trim().toLowerCase();
-
-  let filteredTasks = tasks.filter((task) => {
-    const matchesStatus =
-      !filters.status || task.status === filters.status;
-
-    const matchesPriority =
-      !filters.priority || task.priority === filters.priority;
-
-    const matchesAssignee =
-      !filters.assignedTo ||
-      getId(task.assignedTo) === getId(filters.assignedTo);
-
-    const matchesDepartment =
-      !filters.department ||
-      getId(task.department) === getId(filters.department);
-
-    const matchesSearch =
-      !search ||
-      task.title.toLowerCase().includes(search) ||
-      task.description.toLowerCase().includes(search) ||
-      task.assignedTo?.name?.toLowerCase().includes(search);
-
-    return (
-      matchesStatus &&
-      matchesPriority &&
-      matchesAssignee &&
-      matchesDepartment &&
-      matchesSearch
-    );
-  });
-
-  filteredTasks.sort(
-    (a, b) => new Date(a.dueDate) - new Date(b.dueDate),
-  );
-
-  const page = Math.max(1, Number(filters.page) || 1);
-  const limit = Math.max(1, Number(filters.limit) || 10);
-
-  const total = filteredTasks.length;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-
-  const startIndex = (page - 1) * limit;
+  const data = response.data.data
 
   return {
-    tasks: clone(
-      filteredTasks.slice(startIndex, startIndex + limit),
-    ),
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages,
+    tasks: data.tasks || [],
+    pagination: data.pagination || {
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 1,
     },
-  };
-};
+  }
+}
 
 export const getTaskById = async (taskId) => {
-  const task = readTasks().find(
-    (candidate) => candidate._id === taskId,
-  );
+  const response = await api.get(`/tasks/${taskId}`)
 
-  return task ? clone(task) : null;
-};
+  return response.data.data
+}
 
 export const createTask = async (taskData) => {
-  const fields = validateTaskFields(taskData);
-
-  const now = new Date().toISOString();
-
-  const newTask = {
-    ...fields,
-    _id: `mock-task-${Date.now()}`,
-    assignedBy: clone(mockManager),
-    status: "pending",
-    completedAt: null,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  writeTasks([newTask, ...readTasks()]);
-
-  return clone(newTask);
-};
-
-export const updateTask = async (taskId, taskData) => {
-  const tasks = readTasks();
-
-  const taskIndex = tasks.findIndex(
-    (task) => task._id === taskId,
-  );
-
-  if (taskIndex === -1) {
-    return null;
+  if (!taskData.title?.trim()) {
+    throw new Error('A task title is required.')
   }
 
-  const currentTask = tasks[taskIndex];
+  if (!taskData.description?.trim()) {
+    throw new Error('A task description is required.')
+  }
 
-  const fields = validateTaskFields({
-    ...currentTask,
-    ...taskData,
-  });
+  if (!ALLOWED_PRIORITIES.includes(taskData.priority)) {
+    throw new Error('Choose a valid task priority.')
+  }
 
-  const updatedTask = {
-    ...currentTask,
-    ...fields,
-    updatedAt: new Date().toISOString(),
-  };
+  if (!taskData.assignedTo) {
+    throw new Error('Choose an employee to assign this task to.')
+  }
 
-  tasks[taskIndex] = updatedTask;
+  if (!taskData.dueDate) {
+    throw new Error('Enter a due date.')
+  }
 
-  writeTasks(tasks);
+  const response = await api.post('/tasks', {
+    title: taskData.title.trim(),
+    description: taskData.description.trim(),
+    assignedTo:
+      typeof taskData.assignedTo === 'string'
+        ? taskData.assignedTo
+        : taskData.assignedTo._id,
+    priority: taskData.priority,
+    dueDate: taskData.dueDate,
+  })
 
-  return clone(updatedTask);
-};
+  return response.data.data
+}
+
+export const updateTask = async (taskId, taskData) => {
+  const payload = {}
+
+  if (taskData.title !== undefined) {
+    payload.title = taskData.title.trim()
+  }
+
+  if (taskData.description !== undefined) {
+    payload.description = taskData.description.trim()
+  }
+
+  if (taskData.assignedTo !== undefined) {
+    payload.assignedTo =
+      typeof taskData.assignedTo === 'string'
+        ? taskData.assignedTo
+        : taskData.assignedTo._id
+  }
+
+  if (taskData.priority !== undefined) {
+    payload.priority = taskData.priority
+  }
+
+  if (taskData.dueDate !== undefined) {
+    payload.dueDate = taskData.dueDate
+  }
+
+  const response = await api.patch(`/tasks/${taskId}`, payload)
+
+  return response.data.data
+}
 
 export const updateTaskStatus = async (taskId, status) => {
   if (!ALLOWED_STATUSES.includes(status)) {
-    throw new Error("Choose a valid task status.");
+    throw new Error('Choose a valid task status.')
   }
 
-  const tasks = readTasks();
-
-  const taskIndex = tasks.findIndex(
-    (task) => task._id === taskId,
-  );
-
-  if (taskIndex === -1) {
-    return null;
-  }
-
-  const now = new Date().toISOString();
-
-  const updatedTask = {
-    ...tasks[taskIndex],
+  const response = await api.patch(`/tasks/${taskId}/status`, {
     status,
-    completedAt:
-      status === "completed" ? now : null,
-    updatedAt: now,
-  };
+  })
 
-  tasks[taskIndex] = updatedTask;
-
-  writeTasks(tasks);
-
-  return clone(updatedTask);
-};
+  return response.data.data
+}
 
 export const deleteTask = async (taskId) => {
-  const tasks = readTasks();
+  await api.delete(`/tasks/${taskId}`)
 
-  const taskExists = tasks.some(
-    (task) => task._id === taskId,
-  );
-
-  if (!taskExists) {
-    return false;
-  }
-
-  writeTasks(
-    tasks.filter((task) => task._id !== taskId),
-  );
-
-  return true;
-};
+  return true
+}
 
 export const isTaskOverdue = (
   task,
   now = new Date(),
-) =>
-  task.status !== "completed" &&
-  new Date(task.dueDate) < now;
+) => {
+  if (typeof task.overdue === 'boolean') {
+    return task.overdue
+  }
 
-export const resetDemoTasks = () => {
-  writeTasks(clone(initialTasks));
-};
-
-export const demoUsers = {
-  admin: clone(mockAdmin),
-  manager: clone(mockManager),
-  employee: clone(mockEmployees[0]),
-};
+  return (
+    task.status !== 'completed' &&
+    new Date(task.dueDate) < now
+  )
+}

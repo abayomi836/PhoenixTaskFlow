@@ -20,7 +20,7 @@ const validate = require("../middleware/validateMiddleware");
 
 const router = express.Router();
 
-router.get("/", protect, getDepartments);
+router.get("/", getDepartments);
 
 router.get("/:id", protect, getDepartmentById);
 

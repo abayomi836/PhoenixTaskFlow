@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 import TaskCard from "../components/TaskCard";
@@ -10,34 +11,22 @@ import {
   updateTaskStatus,
 } from "../services/taskService";
 
-const DEMO_MANAGER = {
-  _id: "mock-manager-1",
-  name: "Jane Manager",
-  email: "jane@example.com",
-  role: "manager",
-  position: "Head of Department",
-  department: {
-    _id: "mock-department-1",
-    name: "Academic",
-  },
-};
-
-const getId = (value) =>
-  typeof value === "string" ? value : value?._id;
-
 const getErrorMessage = (error) =>
   error instanceof Error
     ? error.message
     : "Something went wrong.";
 
-function TasksPage({
-  currentUser = DEMO_MANAGER,
-}) {
+function TasksPage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const role = currentUser?.role;
+  const role = user?.role;
+
   const canManage =
     role === "admin" || role === "manager";
+
+  const canUpdateStatus =
+    role === "employee";
 
   const [tasks, setTasks] = useState([]);
 
@@ -77,23 +66,6 @@ function TasksPage({
           limit: pagination.limit,
         };
 
-        /*
-         * These filters are only being used by the local mock service
-         * during independent frontend testing.
-         *
-         * When the real API is connected, the backend will determine
-         * employee/manager task scope from the authenticated JWT.
-         */
-        if (role === "manager") {
-          filters.department = getId(
-            currentUser?.department,
-          );
-        }
-
-        if (role === "employee") {
-          filters.assignedTo = currentUser?._id;
-        }
-
         const result = await getTasks(filters);
 
         if (active) {
@@ -102,9 +74,7 @@ function TasksPage({
         }
       } catch (loadError) {
         if (active) {
-          setError(
-            getErrorMessage(loadError),
-          );
+          setError(getErrorMessage(loadError));
         }
       } finally {
         if (active) {
@@ -119,21 +89,15 @@ function TasksPage({
       active = false;
     };
   }, [
-    currentUser?._id,
-    currentUser?.department,
     page,
     pagination.limit,
     priority,
     refreshKey,
-    role,
     search,
     status,
   ]);
 
-  const resetPageAndSet = (
-    setter,
-    value,
-  ) => {
+  const resetPageAndSet = (setter, value) => {
     setter(value);
     setPage(1);
   };
@@ -163,18 +127,12 @@ function TasksPage({
     setNotice("");
 
     try {
-      const deleted = await deleteTask(task._id);
-
-      if (!deleted) {
-        throw new Error("Task could not be deleted.");
-      }
+      await deleteTask(task._id);
 
       setNotice("Task deleted.");
       setRefreshKey((key) => key + 1);
     } catch (deleteError) {
-      setError(
-        getErrorMessage(deleteError),
-      );
+      setError(getErrorMessage(deleteError));
     }
   };
 
@@ -186,11 +144,10 @@ function TasksPage({
     setNotice("");
 
     try {
-      const updatedTask =
-        await updateTaskStatus(
-          taskId,
-          nextStatus,
-        );
+      const updatedTask = await updateTaskStatus(
+        taskId,
+        nextStatus,
+      );
 
       if (!updatedTask) {
         throw new Error(
@@ -198,15 +155,10 @@ function TasksPage({
         );
       }
 
-      setNotice(
-        "Task status updated.",
-      );
-
+      setNotice("Task status updated.");
       setRefreshKey((key) => key + 1);
     } catch (statusError) {
-      setError(
-        getErrorMessage(statusError),
-      );
+      setError(getErrorMessage(statusError));
     }
   };
 
@@ -264,10 +216,9 @@ function TasksPage({
           padding: "0.75rem 1rem",
         }}
       >
-        Demo mode: Task data is currently stored
-        locally so the Task Management developer
-        can test independently of authentication
-        and the backend.
+        {role === "employee"
+          ? "You can only view and update the status of tasks assigned to you."
+          : "You can view, create, edit, and delete tasks."}
       </p>
 
       <section
@@ -397,17 +348,9 @@ function TasksPage({
               setPage(1);
             }}
           >
-            <option value={5}>
-              5
-            </option>
-
-            <option value={10}>
-              10
-            </option>
-
-            <option value={20}>
-              20
-            </option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
           </select>
         </label>
 
@@ -420,24 +363,16 @@ function TasksPage({
         >
           <button
             type="button"
-            aria-pressed={
-              view === "table"
-            }
-            onClick={() =>
-              setView("table")
-            }
+            aria-pressed={view === "table"}
+            onClick={() => setView("table")}
           >
             Table
           </button>
 
           <button
             type="button"
-            aria-pressed={
-              view === "cards"
-            }
-            onClick={() =>
-              setView("cards")
-            }
+            aria-pressed={view === "cards"}
+            onClick={() => setView("cards")}
           >
             Cards
           </button>
@@ -488,14 +423,12 @@ function TasksPage({
               : undefined
           }
           onStatusChange={
-            role === "employee"
+            canUpdateStatus
               ? handleStatusChange
               : undefined
           }
           canManage={canManage}
-          canUpdateStatus={
-            role === "employee"
-          }
+          canUpdateStatus={canUpdateStatus}
         />
       ) : (
         <div
@@ -506,9 +439,7 @@ function TasksPage({
           }}
         >
           {tasks.length === 0 ? (
-            <p>
-              No tasks found.
-            </p>
+            <p>No tasks found.</p>
           ) : (
             tasks.map((task) => (
               <TaskCard
@@ -526,14 +457,12 @@ function TasksPage({
                     : undefined
                 }
                 onStatusChange={
-                  role === "employee"
+                  canUpdateStatus
                     ? handleStatusChange
                     : undefined
                 }
                 canManage={canManage}
-                canUpdateStatus={
-                  role === "employee"
-                }
+                canUpdateStatus={canUpdateStatus}
               />
             ))
           )}
@@ -564,10 +493,7 @@ function TasksPage({
           type="button"
           onClick={() =>
             setPage((current) =>
-              Math.max(
-                1,
-                current - 1,
-              ),
+              Math.max(1, current - 1),
             )
           }
           disabled={
