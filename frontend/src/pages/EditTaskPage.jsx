@@ -267,14 +267,9 @@ function EditTaskPage({
   }
 
   return (
-    <main
-      style={{
-        margin: '0 auto',
-        maxWidth: '720px',
-        padding: '2rem 1rem',
-      }}
-    >
-      <p>
+    <main className="edit-task-page">
+
+      <p className="edit-task-back">
         <Link to={`/tasks/${task._id}`}>
           ← Back to task
         </Link>
@@ -292,23 +287,13 @@ function EditTaskPage({
       )}
 
       <form
-        onSubmit={handleSubmit}
-        style={{
-          background: '#fff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          display: 'grid',
-          gap: '1rem',
-          padding: '1.25rem',
-        }}
-      >
+  className="edit-task-form"
+  onSubmit={handleSubmit}
+>
         <label
-          htmlFor="task-title"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
-        >
+  htmlFor="task-title"
+  className="edit-task-field"
+>
           Task title
 
           <input
@@ -323,12 +308,9 @@ function EditTaskPage({
         </label>
 
         <label
-          htmlFor="task-description"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
-        >
+  htmlFor="task-description"
+  className="edit-task-field"
+>
           Description
 
           <textarea
@@ -343,12 +325,9 @@ function EditTaskPage({
         </label>
 
         <label
-          htmlFor="task-assignee"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
-        >
+  htmlFor="task-assignee"
+  className="edit-task-field"
+>
           Assign to
 
           <select
@@ -389,12 +368,9 @@ function EditTaskPage({
         )}
 
         <label
-          htmlFor="task-priority"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
-        >
+  htmlFor="task-priority"
+  className="edit-task-field"
+>
           Priority
 
           <select
@@ -418,10 +394,7 @@ function EditTaskPage({
 
         <label
           htmlFor="task-due-date"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
+          className="edit-task-field"
         >
           Due date
 
@@ -435,20 +408,16 @@ function EditTaskPage({
           />
         </label>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            marginTop: '0.5rem',
-          }}
-        >
+        <div className="edit-task-actions">
+
           <button
-            type="submit"
-            disabled={
-              saving ||
-              eligibleEmployees.length === 0
-            }
-          >
+  type="submit"
+  className="btn btn-primary"
+  disabled={
+    saving ||
+    eligibleEmployees.length === 0
+  }
+>
             {saving
               ? 'Saving…'
               : 'Save changes'}

@@ -7,6 +7,10 @@ import ProtectedRoute from './components/ProtectedRoute'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import DashboardPage from './pages/DashboardPage'
+import EmployeesPage from './pages/EmployeesPage'
+import DepartmentsPage from './pages/DepartmentsPage'
+import ProfilePage from './pages/ProfilePage'
 
 import TasksPage from './pages/TasksPage'
 import CreateTaskPage from './pages/CreateTaskPage'
@@ -26,6 +30,9 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/employees" element={<EmployeesPage />} />
+            <Route path="/departments" element={<DepartmentsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           {/* Protected application routes */}
@@ -33,9 +40,9 @@ function App() {
             <Route element={<DashboardLayout />}>
 
               <Route
-                path="/dashboard"
-                element={<div>Dashboard</div>}
-              />
+  path="/dashboard"
+  element={<DashboardPage />}
+/>
 
               {/* Task Management */}
               <Route

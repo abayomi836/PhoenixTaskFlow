@@ -27,61 +27,36 @@ function TaskTable({
   canUpdateStatus = false,
 }) {
   return (
-    <div style={{ overflowX: 'auto', width: '100%' }}>
-      <table
-        style={{
-          borderCollapse: 'collapse',
-          minWidth: '780px',
-          textAlign: 'left',
-          width: '100%',
-        }}
-      >
-        <caption
-          style={{
-            height: '1px',
-            overflow: 'hidden',
-            position: 'absolute',
-            whiteSpace: 'nowrap',
-            width: '1px',
-            clipPath: 'inset(50%)',
-          }}
-        >
+    <div
+  className="task-table-container">
+    
+      <table className="task-table">
+        <caption className="visually-hidden">
           Tasks, assignees, priorities, deadlines, and current status
         </caption>
 
         <thead>
           <tr>
-            {['Task', 'Assignee', 'Department', 'Priority', 'Due date', 'Status', 'Actions'].map(
-              (heading) => (
-                <th
-                  key={heading}
-                  scope="col"
-                  style={{
-                    borderBottom: '2px solid #cbd5e1',
-                    color: '#475569',
-                    fontSize: '0.8rem',
-                    padding: '0.75rem',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {heading}
-                </th>
-              ),
-            )}
+            {[
+              'Task',
+              'Assignee',
+              'Department',
+              'Priority',
+              'Due date',
+              'Status',
+              'Actions',
+            ].map((heading) => (
+              <th key={heading} scope="col">
+                {heading}
+              </th>
+            ))}
           </tr>
         </thead>
 
         <tbody>
           {tasks.length === 0 ? (
             <tr>
-              <td
-                colSpan={7}
-                style={{
-                  color: '#64748b',
-                  padding: '2rem 0.75rem',
-                  textAlign: 'center',
-                }}
-              >
+              <td colSpan={7} className="task-table-empty">
                 No tasks found.
               </td>
             </tr>
@@ -92,131 +67,81 @@ function TaskTable({
 
               return (
                 <tr key={task._id}>
-                  <th
-                    scope="row"
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      fontWeight: 600,
-                      minWidth: '180px',
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                    }}
-                  >
+                  <th scope="row" className="task-table-title">
                     <div>{task.title}</div>
+
                     {task.description && (
-                      <div
-                        style={{
-                          color: '#64748b',
-                          fontSize: '0.85rem',
-                          fontWeight: 400,
-                          marginTop: '0.25rem',
-                          maxWidth: '280px',
-                        }}
-                      >
+                      <div className="task-table-description">
                         {task.description}
                       </div>
                     )}
                   </th>
 
-                  <td
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                    }}
-                  >
+                  <td>
                     {task.assignedTo?.name || 'Unassigned'}
                   </td>
 
-                  <td
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                    }}
-                  >
+                  <td>
                     {task.department?.name || '—'}
                   </td>
 
-                  <td
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                    }}
-                  >
-                    {priorityLabels[task.priority] || 'Unknown'}
+                  <td>
+                    <span className={`priority-text priority-${task.priority}`}>
+                      {priorityLabels[task.priority] || 'Unknown'}
+                    </span>
                   </td>
 
-                  <td
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      color: overdue ? '#b42318' : 'inherit',
-                      fontWeight: overdue ? 600 : 400,
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <td className={overdue ? 'task-overdue' : ''}>
                     {formatDueDate(task.dueDate)}
+
                     {overdue && (
-                      <div aria-label="This task is overdue">Overdue</div>
+                      <div className="task-overdue-label">
+                        Overdue
+                      </div>
                     )}
                   </td>
 
-                  <td
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                    }}
-                  >
+                  <td>
                     <StatusBadge status={task.status} />
 
                     {canUpdateStatus && onStatusChange && (
-                      <div style={{ marginTop: '0.5rem' }}>
-                        <label
-                          htmlFor={statusSelectId}
-                          style={{
-                            display: 'block',
-                            fontSize: '0.8rem',
-                            marginBottom: '0.25rem',
-                          }}
-                        >
+                      <div className="task-status-control">
+                        <label htmlFor={statusSelectId}>
                           Update status
                         </label>
+
                         <select
                           id={statusSelectId}
                           value={task.status}
                           onChange={(event) =>
-                            onStatusChange(task._id, event.target.value)
+                            onStatusChange(
+                              task._id,
+                              event.target.value,
+                            )
                           }
                         >
-                          <option value="pending">Pending</option>
-                          <option value="in-progress">In progress</option>
-                          <option value="completed">Completed</option>
+                          <option value="pending">
+                            Pending
+                          </option>
+
+                          <option value="in-progress">
+                            In progress
+                          </option>
+
+                          <option value="completed">
+                            Completed
+                          </option>
                         </select>
                       </div>
                     )}
                   </td>
 
-                  <td
-                    style={{
-                      borderBottom: '1px solid #e2e8f0',
-                      padding: '0.85rem 0.75rem',
-                      verticalAlign: 'top',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '0.4rem',
-                      }}
-                    >
+                  <td>
+                    <div className="task-table-actions">
                       {onView && (
                         <button
                           type="button"
+                          className="btn btn-secondary btn-sm"
                           onClick={() => onView(task)}
                           aria-label={`View ${task.title}`}
                         >
@@ -227,6 +152,7 @@ function TaskTable({
                       {canManage && onEdit && (
                         <button
                           type="button"
+                          className="btn btn-secondary btn-sm"
                           onClick={() => onEdit(task)}
                           aria-label={`Edit ${task.title}`}
                         >
@@ -237,9 +163,9 @@ function TaskTable({
                       {canManage && onDelete && (
                         <button
                           type="button"
+                          className="btn btn-danger btn-sm"
                           onClick={() => onDelete(task)}
                           aria-label={`Delete ${task.title}`}
-                          style={{ color: '#b42318' }}
                         >
                           Delete
                         </button>

@@ -228,28 +228,16 @@ function TaskDetailsPage({
   const overdue = isTaskOverdue(task)
 
   return (
-    <main
-      style={{
-        margin: '0 auto',
-        maxWidth: '900px',
-        padding: '2rem 1rem',
-      }}
-    >
-      <p>
-        <Link to="/tasks">
-          ← Back to tasks
-        </Link>
-      </p>
+    <main className="task-details-page">
 
-      <header
-        style={{
-          alignItems: 'flex-start',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          justifyContent: 'space-between',
-        }}
-      >
+      <p className="task-details-back">
+  <Link to="/tasks">
+    ← Back to tasks
+  </Link>
+</p>
+
+      <header className="task-details-header">
+
         <div>
           <h1>{task.title}</h1>
 
@@ -259,33 +247,27 @@ function TaskDetailsPage({
         </div>
 
         {canManage && (
-          <div
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-            }}
-          >
+          <div className="task-details-actions">
+
             <Link
               to={`/tasks/${task._id}/edit`}
-              style={{
-                display: 'inline-block',
-                padding: '0.5rem 0.75rem',
-              }}
+              className="btn btn-secondary btn-sm"
             >
               Edit task
             </Link>
 
             <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              style={{ color: '#b42318' }}
-            >
-              {deleting
-                ? 'Deleting…'
-                : 'Delete task'}
-            </button>
+  type="button"
+  className="btn btn-danger btn-sm"
+  onClick={handleDelete}
+  disabled={deleting}
+>
+
+  {deleting ? 'Deleting…' : 'Delete task'}
+
+</button>
           </div>
+
         )}
       </header>
 
@@ -308,32 +290,21 @@ function TaskDetailsPage({
       )}
 
       <section
-        aria-labelledby="task-description-heading"
-        style={{
-          background: '#fff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          marginTop: '1.5rem',
-          padding: '1.25rem',
-        }}
-      >
+  className="task-details-card"
+  aria-labelledby="task-description-heading"
+>
+
         <h2 id="task-description-heading">
           Description
         </h2>
 
-        <p style={{ whiteSpace: 'pre-wrap' }}>
+        <p className="task-details-description">
           {task.description ||
             'No description provided.'}
         </p>
 
-        <dl
-          style={{
-            display: 'grid',
-            gap: '1rem 2rem',
-            gridTemplateColumns:
-              'repeat(auto-fit, minmax(180px, 1fr))',
-          }}
-        >
+        <dl className="task-details-meta">
+
           <div>
             <dt>Assigned to</dt>
             <dd>
@@ -385,13 +356,9 @@ function TaskDetailsPage({
 
           <div>
             <dt>Due date</dt>
-            <dd
-              style={{
-                color: overdue
-                  ? '#b42318'
-                  : 'inherit',
-              }}
-            >
+            
+            <dd className={overdue ? 'task-overdue' : ''}>
+
               {formatDate(task.dueDate)}
 
               {overdue && (

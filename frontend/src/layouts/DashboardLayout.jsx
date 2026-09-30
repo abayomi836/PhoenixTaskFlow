@@ -20,8 +20,11 @@ return (
 <div className="dashboard-layout">
 <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
 <div className="sidebar-brand">
-<h1>PhoenixTASKFLOW</h1>
-<span>Assign. Track. Complete.</span>
+  <img
+    src="/src/assets/ptf-white-logo.png"
+    alt="PhoenixTASKFLOW"
+    className="sidebar-logo"
+  />
 </div>
 
 <nav className="sidebar-nav">
@@ -33,9 +36,11 @@ Dashboard
 Tasks
 </NavLink>
 
-<NavLink to="/employees" onClick={closeMenu}>
-Employees
-</NavLink>
+{(user?.role === 'admin' || user?.role === 'manager') && (
+  <NavLink to="/employees" onClick={closeMenu}>
+    Employees
+  </NavLink>
+)}
 
 <NavLink to="/departments" onClick={closeMenu}>
 Departments

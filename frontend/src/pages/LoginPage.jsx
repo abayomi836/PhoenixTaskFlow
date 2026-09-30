@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth'
 function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -29,48 +30,82 @@ function LoginPage() {
     }
   }
 
-  return (
-    <div className="auth-page">
-      <div className="card auth-card">
-        <h1>Login</h1>
+    return (
+    <main className="auth-page">
+      <section className="auth-card" aria-labelledby="login-heading">
+        <div className="auth-brand">
+          <img
+            src="/src/assets/ptf-full-logo.png"
+            alt="PhoenixTASKFLOW"
+            className="auth-logo"
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div>
-            <label htmlFor="email">Email</label>
-            <input
-              className="input"
-              id="email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-          </div>
+        <div className="auth-header">
+          <p className="auth-eyebrow">Welcome back</p>
+          <h1 id="login-heading">Sign in to your account</h1>
+          <p>
+            Access your tasks, track progress, and stay on top of your work.
+          </p>
+        </div>
 
-          <div>
-            <label htmlFor="password">Password</label>
-            <input
-              className="input"
-              id="password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </div>
+        <div className="card auth-form-card">
+          <form onSubmit={handleSubmit} className="auth-form">
+            <div>
+              <label htmlFor="email">Email address</label>
+              <input
+                className="input"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
+                required
+              />
+            </div>
 
-          {error && <p className="alert alert-error">{error}</p>}
+            <div className="password-field">
+  <label htmlFor="password">Password</label>
 
-          <button
-            className="btn btn-primary"
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-      </div>
-    </div>
+  <div className="password-input-wrapper">
+    <input
+      className="input"
+      id="password"
+      type={showPassword ? 'text' : 'password'}
+      value={password}
+      onChange={(event) => setPassword(event.target.value)}
+      autoComplete="current-password"
+      required
+    />
+
+    <button
+      type="button"
+      className="password-toggle"
+      onClick={() => setShowPassword((current) => !current)}
+      aria-label={showPassword ? 'Hide password' : 'Show password'}
+    >
+      {showPassword ? 'Hide' : 'Show'}
+    </button>
+  </div>
+</div>
+
+            {error && (
+              <p className="alert alert-error" role="alert">
+                {error}
+              </p>
+            )}
+
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Sign in'}
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
   )
 }
 

@@ -163,58 +163,35 @@ function TasksPage() {
   };
 
   return (
-    <main
-      style={{
-        margin: "0 auto",
-        maxWidth: "1200px",
-        padding: "2rem 1rem",
-      }}
+    <main className="tasks-page">
+
+      <header className="page-header">
+  <div>
+    <p className="page-eyebrow">WORK MANAGEMENT</p>
+
+    <h1>Tasks</h1>
+
+    <p className="page-description">
+      {role === "employee"
+        ? "View and update the tasks assigned to you."
+        : "Search, review, and manage tasks."}
+    </p>
+  </div>
+
+  {canManage && (
+    <button
+      type="button"
+      className="btn btn-primary"
+      onClick={createTask}
     >
-      <header
-        style={{
-          alignItems: "center",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          justifyContent: "space-between",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <div>
-          <h1 style={{ margin: 0 }}>
-            Tasks
-          </h1>
-
-          <p
-            style={{
-              color: "#64748b",
-              marginBottom: 0,
-            }}
-          >
-            {role === "employee"
-              ? "View and update the tasks assigned to you."
-              : "Search, review, and manage tasks."}
-          </p>
-        </div>
-
-        {canManage && (
-          <button
-            type="button"
-            onClick={createTask}
-          >
-            Create task
-          </button>
-        )}
-      </header>
+      Create Task
+    </button>
+  )}
+</header>
 
       <p
         role="status"
-        style={{
-          background: "#f8fafc",
-          border: "1px solid #e2e8f0",
-          borderRadius: "8px",
-          padding: "0.75rem 1rem",
-        }}
+         className="task-permission-notice"
       >
         {role === "employee"
           ? "You can only view and update the status of tasks assigned to you."
@@ -222,162 +199,126 @@ function TasksPage() {
       </p>
 
       <section
-        aria-label="Task filters"
-        style={{
-          alignItems: "end",
-          background: "#f8fafc",
-          border: "1px solid #e2e8f0",
-          borderRadius: "10px",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "0.75rem",
-          marginBottom: "1rem",
-          padding: "1rem",
-        }}
-      >
-        <label
-          style={{
-            display: "grid",
-            gap: "0.3rem",
-            flex: "1 1 220px",
-          }}
-        >
-          Search tasks
+  className="task-filters"
+  aria-label="Task filters"
+>
+  <div className="task-filter-search">
+    <label htmlFor="task-search">
+      Search tasks
+    </label>
 
-          <input
-            type="search"
-            value={search}
-            onChange={(event) =>
-              resetPageAndSet(
-                setSearch,
-                event.target.value,
-              )
-            }
-            placeholder="Search title, description..."
-          />
-        </label>
+    <input
+      id="task-search"
+      type="search"
+      value={search}
+      onChange={(event) =>
+        resetPageAndSet(
+          setSearch,
+          event.target.value,
+        )
+      }
+      placeholder="Search title, description..."
+    />
+  </div>
 
-        <label
-          style={{
-            display: "grid",
-            gap: "0.3rem",
-          }}
-        >
-          Status
+  <div className="task-filter-field">
+    <label htmlFor="task-status">
+      Status
+    </label>
 
-          <select
-            value={status}
-            onChange={(event) =>
-              resetPageAndSet(
-                setStatus,
-                event.target.value,
-              )
-            }
-          >
-            <option value="">
-              All statuses
-            </option>
+    <select
+      id="task-status"
+      value={status}
+      onChange={(event) =>
+        resetPageAndSet(
+          setStatus,
+          event.target.value,
+        )
+      }
+    >
+      <option value="">All statuses</option>
+      <option value="pending">Pending</option>
+      <option value="in-progress">In progress</option>
+      <option value="completed">Completed</option>
+    </select>
+  </div>
 
-            <option value="pending">
-              Pending
-            </option>
+  <div className="task-filter-field">
+    <label htmlFor="task-priority">
+      Priority
+    </label>
 
-            <option value="in-progress">
-              In progress
-            </option>
+    <select
+      id="task-priority"
+      value={priority}
+      onChange={(event) =>
+        resetPageAndSet(
+          setPriority,
+          event.target.value,
+        )
+      }
+    >
+      <option value="">All priorities</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+  </div>
 
-            <option value="completed">
-              Completed
-            </option>
-          </select>
-        </label>
+  <div className="task-filter-field">
+    <label htmlFor="task-limit">
+      Rows per page
+    </label>
 
-        <label
-          style={{
-            display: "grid",
-            gap: "0.3rem",
-          }}
-        >
-          Priority
+    <select
+      id="task-limit"
+      value={pagination.limit}
+      onChange={(event) => {
+        setPagination((current) => ({
+          ...current,
+          limit: Number(event.target.value),
+        }));
 
-          <select
-            value={priority}
-            onChange={(event) =>
-              resetPageAndSet(
-                setPriority,
-                event.target.value,
-              )
-            }
-          >
-            <option value="">
-              All priorities
-            </option>
+        setPage(1);
+      }}
+    >
+      <option value={5}>5</option>
+      <option value={10}>10</option>
+      <option value={20}>20</option>
+    </select>
+  </div>
 
-            <option value="high">
-              High
-            </option>
+  <div
+    className="task-view-toggle"
+    aria-label="Task display mode"
+  >
+    <button
+      type="button"
+      className={
+        view === "table"
+          ? "task-view-button active"
+          : "task-view-button"
+      }
+      aria-pressed={view === "table"}
+      onClick={() => setView("table")}
+    >
+      Table
+    </button>
 
-            <option value="medium">
-              Medium
-            </option>
-
-            <option value="low">
-              Low
-            </option>
-          </select>
-        </label>
-
-        <label
-          style={{
-            display: "grid",
-            gap: "0.3rem",
-          }}
-        >
-          Rows per page
-
-          <select
-            value={pagination.limit}
-            onChange={(event) => {
-              setPagination((current) => ({
-                ...current,
-                limit: Number(
-                  event.target.value,
-                ),
-              }));
-
-              setPage(1);
-            }}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
-        </label>
-
-        <div
-          aria-label="Task display mode"
-          style={{
-            display: "flex",
-            gap: "0.4rem",
-          }}
-        >
-          <button
-            type="button"
-            aria-pressed={view === "table"}
-            onClick={() => setView("table")}
-          >
-            Table
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={view === "cards"}
-            onClick={() => setView("cards")}
-          >
-            Cards
-          </button>
-        </div>
-      </section>
+    <button
+      type="button"
+      className={
+        view === "cards"
+          ? "task-view-button active"
+          : "task-view-button"
+      }
+      aria-pressed={view === "cards"}
+      onClick={() => setView("cards")}
+    >
+      Cards
+    </button>
+  </div>
+</section>
 
       {error && (
         <p
@@ -470,16 +411,9 @@ function TasksPage() {
       )}
 
       <nav
-        aria-label="Task list pages"
-        style={{
-          alignItems: "center",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "0.75rem",
-          justifyContent: "flex-end",
-          marginTop: "1rem",
-        }}
-      >
+  className="task-pagination"
+  aria-label="Task list pages"
+>
         <span>
           Page {pagination.page} of{" "}
           {pagination.totalPages} ·{" "}
