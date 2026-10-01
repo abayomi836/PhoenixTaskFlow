@@ -185,7 +185,20 @@ const updateUser = async (req, res, next) => {
       isActive,
     } = req.body;
 
-    // Employees can only update their own name and position
+// Admins cannot deactivate their own account
+if (
+  req.user.role === "admin" &&
+  req.user._id.toString() === user._id.toString() &&
+  isActive === false
+) {
+  return res.status(403).json({
+    success: false,
+    message: "You cannot deactivate your own account",
+    data: null,
+  });
+}
+
+    // Employees can only update their own name
     if (req.user.role === "employee") {
       if (req.user._id.toString() !== user._id.toString()) {
         return res.status(403).json({
@@ -195,7 +208,7 @@ const updateUser = async (req, res, next) => {
         });
       }
 
-      const allowedFields = ["name", "position"];
+      const allowedFields = ["name"];
       const submittedFields = Object.keys(req.body);
 
       const hasUnauthorizedField = submittedFields.some(

@@ -67,10 +67,6 @@ const updateUserValidator = [
     .withMessage("isActive must be a boolean"),
 ];
 
-module.exports = {
-  createUserValidator,
-  updateUserValidator,
-};
 
 module.exports = {
   createUserValidator,
