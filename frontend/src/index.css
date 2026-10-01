@@ -130,14 +130,22 @@ cursor: not-allowed;
 }
 
 a {
-color: var(--primary-accent);
-text-decoration: none;
+  color: var(--primary-accent);
+  text-decoration: none;
 }
 
 a:hover {
-text-decoration: underline;
+  text-decoration: underline;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
 /* Responsive typography */
 @media (max-width: 768px) {
 h1 {
@@ -151,4 +159,9 @@ font-size: 22px;
 h3 {
 font-size: 18px;
 }
+}
+
+img {
+  display: block;
+  max-width: 100%;
 }

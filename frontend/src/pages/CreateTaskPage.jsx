@@ -149,13 +149,8 @@ function CreateTaskPage() {
 
   if (!canCreate) {
     return (
-      <main
-        style={{
-          margin: '0 auto',
-          maxWidth: '720px',
-          padding: '2rem 1rem',
-        }}
-      >
+      <main className="create-task-page">
+
         <h1>Create task</h1>
 
         <p role="alert">
@@ -168,23 +163,24 @@ function CreateTaskPage() {
   }
 
   return (
-    <main
-      style={{
-        margin: '0 auto',
-        maxWidth: '720px',
-        padding: '2rem 1rem',
-      }}
-    >
-      <p>
-        <Link to="/tasks">← Back to tasks</Link>
-      </p>
-
-      <h1>Create task</h1>
+    <main className="create-task-page">
 
       <p>
-        Assign the task to an active employee and set its
-        priority and due date.
-      </p>
+  <Link to="/tasks">← Back to tasks</Link>
+</p>
+
+<header className="page-header">
+  <div>
+    <p className="page-eyebrow">WORK MANAGEMENT</p>
+
+    <h1>Create task</h1>
+
+    <p className="page-description">
+      Assign a task to an active employee and set its
+      priority and due date.
+    </p>
+  </div>
+</header>
 
       {error && (
         <p
@@ -204,23 +200,15 @@ function CreateTaskPage() {
         )}
 
       <form
-        onSubmit={handleSubmit}
-        style={{
-          background: '#fff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
-          display: 'grid',
-          gap: '1rem',
-          padding: '1.25rem',
-        }}
-      >
+  onSubmit={handleSubmit}
+  className="create-task-form"
+>
+
         <label
           htmlFor="task-title"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
+          className="create-task-field"
         >
+
           Task title
 
           <input
@@ -236,10 +224,7 @@ function CreateTaskPage() {
 
         <label
           htmlFor="task-description"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
+          className="create-task-field"
         >
           Description
 
@@ -256,10 +241,7 @@ function CreateTaskPage() {
 
         <label
           htmlFor="task-assignee"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
+          className="create-task-field"
         >
           Assign to
 
@@ -294,10 +276,7 @@ function CreateTaskPage() {
 
         <label
           htmlFor="task-priority"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
+          className="create-task-field"
         >
           Priority
 
@@ -316,10 +295,7 @@ function CreateTaskPage() {
 
         <label
           htmlFor="task-due-date"
-          style={{
-            display: 'grid',
-            gap: '0.35rem',
-          }}
+          className="create-task-field"
         >
           Due date
 
@@ -334,25 +310,23 @@ function CreateTaskPage() {
           />
         </label>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            marginTop: '0.5rem',
-          }}
-        >
+        <div className="create-task-actions">
+          
           <button
-            type="submit"
-            disabled={
-              saving ||
-              employeesLoading ||
-              eligibleEmployees.length === 0
-            }
-          >
+  type="submit"
+  className="btn btn-primary"
+  disabled={
+    saving ||
+    employeesLoading ||
+    eligibleEmployees.length === 0
+  }
+>
             {saving ? 'Creating…' : 'Create task'}
           </button>
 
-          <Link to="/tasks">Cancel</Link>
+          <Link to="/tasks" className="btn btn-secondary">
+            Cancel
+          </Link>
         </div>
       </form>
     </main>
