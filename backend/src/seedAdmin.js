@@ -11,8 +11,12 @@ const seedAdmin = async () => {
   try {
     await connectDB();
 
-    const adminEmail = "admin@phoenixtaskflow.com";
-    const adminPassword = "Admin@12345";
+    const adminEmail = process.env.ADMIN_EMAIL;
+const adminPassword = process.env.ADMIN_PASSWORD;
+
+if (!adminEmail || !adminPassword) {
+  throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be set.");
+}
 
     let department = await Department.findOne({
       name: "Administration",
