@@ -5,3 +5,9 @@ export const getDepartments = async () => {
 
   return response.data.data || []
 }
+
+export const createDepartment = async (departmentData) => {
+  const response = await api.post('/departments', departmentData)
+
+  return response.data.data
+}
