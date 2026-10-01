@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import whiteLogo from '../assets/ptf-white-logo.png'
 
 function DashboardLayout() {
 const { user, logout } = useAuth()
@@ -21,7 +22,7 @@ return (
 <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
 <div className="sidebar-brand">
   <img
-    src="/src/assets/ptf-white-logo.png"
+    src={whiteLogo}
     alt="PhoenixTASKFLOW"
     className="sidebar-logo"
   />

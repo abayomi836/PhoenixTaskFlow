@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import fullLogo from '../assets/ptf-full-logo.png'
 
 function HomePage() {
   return (
@@ -6,7 +7,7 @@ function HomePage() {
       <section className="home-hero">
         <div className="home-hero-content">
           <img
-            src="/src/assets/ptf-full-logo.png"
+            src={fullLogo}
             alt="PhoenixTASKFLOW"
             className="home-logo"
           />
