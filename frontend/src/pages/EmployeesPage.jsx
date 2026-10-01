@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import { createUser, getUsers, updateUser } from '../services/userService'
 import { getDepartments } from '../services/departmentService'
@@ -273,236 +273,266 @@ if (active) {
   <p>No employees found.</p>
 ) : (
   <>
-    {editingUser && user?.role === 'admin' && (
-  <div className="employee-edit-form">
-    <h3>Edit User</h3>
-
-    <p>
-      Editing: <strong>{editingUser.name}</strong>
-    </p>
-
-    <label>
-      Name
-      <input
-        type="text"
-        value={editingUser.name}
-        onChange={(event) =>
-          setEditingUser({
-            ...editingUser,
-            name: event.target.value,
-          })
-        }
-      />
-    </label>
-
-    <label>
-      Email
-      <input
-        type="email"
-        value={editingUser.email}
-        readOnly
-      />
-    </label>
-
-    <label>
-      Role
-      <select
-        value={editingUser.role}
-        onChange={(event) =>
-          setEditingUser({
-            ...editingUser,
-            role: event.target.value,
-          })
-        }
-      >
-        <option value="employee">Employee</option>
-        <option value="manager">Manager</option>
-        <option value="admin">Admin</option>
-      </select>
-    </label>
-
-    <label>
-      Position
-      <input
-        type="text"
-        value={editingUser.position || ''}
-        onChange={(event) =>
-          setEditingUser({
-            ...editingUser,
-            position: event.target.value,
-          })
-        }
-      />
-    </label>
-
-    <label>
-      Department
-      <select
-        value={editingUser.department?._id || editingUser.department || ''}
-        onChange={(event) =>
-          setEditingUser({
-            ...editingUser,
-            department: event.target.value,
-          })
-        }
-      >
-        <option value="">Select department</option>
-
-        {departments.map((department) => (
-          <option key={department._id} value={department._id}>
-            {department.name}
-          </option>
-        ))}
-      </select>
-    </label>
-
-    <label>
-      Status
-      <select
-        value={editingUser.isActive ? 'active' : 'inactive'}
-        onChange={(event) =>
-          setEditingUser({
-            ...editingUser,
-            isActive: event.target.value === 'active',
-          })
-        }
-      >
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-    </label>
-
-    <button
-      type="button"
-      className="btn btn-secondary"
-      onClick={() => {
-        setEditingUser(null)
-        setEditingUserId(null)
-      }}
-    >
-      Cancel
-    </button>
-
-<button
-  type="button"
-  className="btn btn-primary"
-  disabled={saving}
-  onClick={async () => {
-    setSaving(true)
-    setError('')
-    setSuccessMessage('')
-
-    try {
-      const updatedUser = await updateUser(editingUserId, {
-        name: editingUser.name,
-        role: editingUser.role,
-        position: editingUser.position,
-        department:
-          editingUser.department?._id || editingUser.department,
-        isActive: editingUser.isActive,
-      })
-
-      const selectedDepartment = departments.find(
-        (department) => department._id === updatedUser.department
-      )
-
-      setUsers((currentUsers) =>
-        currentUsers.map((currentUser) =>
-          currentUser._id === updatedUser._id
-            ? {
-                ...currentUser,
-                ...updatedUser,
-                department: selectedDepartment || currentUser.department,
-              }
-            : currentUser
-        )
-      )
-
-      setEditingUser(null)
-      setEditingUserId(null)
-      setSuccessMessage('User updated successfully.')
-    } catch (updateError) {
-      setError(getErrorMessage(updateError))
-    } finally {
-      setSaving(false)
-    }
-  }}
->
-  {saving ? 'Saving...' : 'Save Changes'}
-</button>
-
-  </div>
-)}
-
-
     <div className="table-container">
-      <table className="table">
-        <caption>
-  {user?.role === 'admin'
-    ? 'All users in the organization'
-    : 'Employees in your department'}
-</caption>
+  <table className="table">
+    <caption>
+      {user?.role === 'admin'
+        ? 'All users in the organization'
+        : 'Employees in your department'}
+    </caption>
 
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Position</th>
-            <th scope="col">Department</th>
-            <th scope="col">Role</th>
-            <th scope="col">Status</th>
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Email</th>
+        <th scope="col">Position</th>
+        <th scope="col">Department</th>
+        <th scope="col">Role</th>
+        <th scope="col">Status</th>
+
+        {user?.role === 'admin' && (
+          <th scope="col">Actions</th>
+        )}
+      </tr>
+    </thead>
+
+    <tbody>
+      {users.map((employee) => (
+  <React.Fragment key={employee._id}>
+
+          <tr key={employee._id}>
+            <td>{employee.name}</td>
+            <td>{employee.email}</td>
+            <td>{employee.position || '—'}</td>
+            <td>{employee.department?.name || '—'}</td>
+
+            <td>
+              <span className="employee-role-badge">
+                {employee.role}
+              </span>
+            </td>
+
+            <td>
+              <span
+                className={
+                  employee.isActive
+                    ? 'employee-status-badge employee-status-active'
+                    : 'employee-status-badge employee-status-inactive'
+                }
+              >
+                {employee.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </td>
 
             {user?.role === 'admin' && (
-              <th scope="col">Actions</th>
+              <td>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setEditingUserId(employee._id)
+                    setEditingUser(employee)
+                  }}
+                >
+                  Edit
+                </button>
+              </td>
             )}
           </tr>
-        </thead>
 
-        <tbody>
-          {users.map((employee) => (
-            <tr key={employee._id}>
-              <td>{employee.name}</td>
-              <td>{employee.email}</td>
-              <td>{employee.position || '—'}</td>
-              <td>{employee.department?.name || '—'}</td>
+          {editingUser?._id === employee._id && user?.role === 'admin' && (
+            <tr>
+              <td colSpan="7">
+                <div className="employee-edit-form">
+                  <h3>Edit User</h3>
 
-              <td>
-                <span className="employee-role-badge">
-                  {employee.role}
-                </span>
-              </td>
+                  <p>
+                    Editing: <strong>{editingUser.name}</strong>
+                  </p>
 
-              <td>
-                <span
-                  className={
-                    employee.isActive
-                      ? 'employee-status-badge employee-status-active'
-                      : 'employee-status-badge employee-status-inactive'
-                  }
-                >
-                  {employee.isActive ? 'Active' : 'Inactive'}
-                </span>
-              </td>
+                  <label>
+                    Name
+                    <input
+                      type="text"
+                      value={editingUser.name}
+                      onChange={(event) =>
+                        setEditingUser({
+                          ...editingUser,
+                          name: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
 
-              {user?.role === 'admin' && (
-                <td>
+                  <label>
+                    Email
+                    <input
+                      type="email"
+                      value={editingUser.email}
+                      readOnly
+                    />
+                  </label>
+
+                  <label>
+                    Role
+                    <select
+                      value={editingUser.role}
+                      onChange={(event) =>
+                        setEditingUser({
+                          ...editingUser,
+                          role: event.target.value,
+                        })
+                      }
+                    >
+                      <option value="employee">Employee</option>
+                      <option value="manager">Manager</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Position
+                    <input
+                      type="text"
+                      value={editingUser.position || ''}
+                      onChange={(event) =>
+                        setEditingUser({
+                          ...editingUser,
+                          position: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    Department
+                    <select
+                      value={
+                        editingUser.department?._id ||
+                        editingUser.department ||
+                        ''
+                      }
+                      onChange={(event) =>
+                        setEditingUser({
+                          ...editingUser,
+                          department: event.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select department</option>
+
+                      {departments.map((department) => (
+                        <option
+                          key={department._id}
+                          value={department._id}
+                        >
+                          {department.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    Status
+                    <select
+                      value={
+                        editingUser.isActive
+                          ? 'active'
+                          : 'inactive'
+                      }
+                      onChange={(event) =>
+                        setEditingUser({
+                          ...editingUser,
+                          isActive:
+                            event.target.value === 'active',
+                        })
+                      }
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </label>
+
                   <button
                     type="button"
                     className="btn btn-secondary"
                     onClick={() => {
-                      setEditingUserId(employee._id)
-                      setEditingUser(employee)
+                      setEditingUser(null)
+                      setEditingUserId(null)
                     }}
                   >
-                    Edit
+                    Cancel
                   </button>
-                </td>
-              )}
+
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={saving}
+                    onClick={async () => {
+                      setSaving(true)
+                      setError('')
+                      setSuccessMessage('')
+
+                      try {
+                        const updatedUser = await updateUser(
+                          editingUserId,
+                          {
+                            name: editingUser.name,
+                            role: editingUser.role,
+                            position: editingUser.position,
+                            department:
+                              editingUser.department?._id ||
+                              editingUser.department,
+                            isActive: editingUser.isActive,
+                          }
+                        )
+
+                        const selectedDepartment =
+                          departments.find(
+                            (department) =>
+                              department._id ===
+                              updatedUser.department
+                          )
+
+                        setUsers((currentUsers) =>
+                          currentUsers.map((currentUser) =>
+                            currentUser._id === updatedUser._id
+                              ? {
+                                  ...currentUser,
+                                  ...updatedUser,
+                                  department:
+                                    selectedDepartment ||
+                                    currentUser.department,
+                                }
+                              : currentUser
+                          )
+                        )
+
+                        setEditingUser(null)
+                        setEditingUserId(null)
+                        setSuccessMessage(
+                          'User updated successfully.'
+                        )
+                      } catch (updateError) {
+                        setError(
+                          getErrorMessage(updateError)
+                        )
+                      } finally {
+                        setSaving(false)
+                      }
+                    }}
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          )}
+        </React.Fragment>
+      ))}
+    </tbody>
+  </table>
+</div>
   </>
 )}
 
