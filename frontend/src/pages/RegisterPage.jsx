@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getDepartments } from '../services/departmentService'
+import fullLogo from '../assets/ptf-full-logo.png'
 
 function RegisterPage() {
   const [name, setName] = useState('')
@@ -75,7 +76,7 @@ function RegisterPage() {
       <section className="auth-card register-card" aria-labelledby="register-heading">
         <div className="auth-brand">
           <img
-            src="/src/assets/ptf-full-logo.png"
+            src={fullLogo}
             alt="PhoenixTASKFLOW"
             className="auth-logo"
           />
