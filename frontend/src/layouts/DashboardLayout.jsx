@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import whiteLogo from '../assets/ptf-white-logo.png'
+import compactLogo from '../assets/ptf-compact-logo.png'
 
 function DashboardLayout() {
 const { user, logout } = useAuth()
@@ -59,8 +60,17 @@ Profile
 
 <div className="dashboard-main">
 <header className="navbar">
+<div className="mobile-navbar-brand">
+  <img
+    src={compactLogo}
+    alt="PhoenixTASKFLOW"
+    className="mobile-navbar-logo"
+  />
+  <span>PhoenixTASKFLOW</span>
+</div>
+
 <button
-className="menu-button"
+  className="menu-button"
 type="button"
 onClick={() => setMenuOpen(!menuOpen)}
 aria-label="Toggle navigation menu"
