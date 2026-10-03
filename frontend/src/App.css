@@ -2145,3 +2145,10 @@ padding: var(--space-lg);
   color: var(--text);
   font: inherit;
 }
+
+.input-hint {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
