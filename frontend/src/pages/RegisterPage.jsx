@@ -62,11 +62,14 @@ function RegisterPage() {
 
       navigate('/login')
     } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          'Registration failed. Please try again.',
-      )
-    } finally {
+  const validationError = error.response?.data?.data?.[0]?.msg
+
+  setError(
+    validationError ||
+      error.response?.data?.message ||
+      'Registration failed. Please try again.',
+  )
+} finally {
       setLoading(false)
     }
   }
@@ -141,6 +144,11 @@ function RegisterPage() {
       {showPassword ? 'Hide' : 'Show'}
     </button>
   </div>
+
+<p className="input-hint">
+  Password must be at least 8 characters long.
+</p>
+
 </div>
 
             <div>
