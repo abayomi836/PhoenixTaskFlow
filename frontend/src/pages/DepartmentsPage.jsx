@@ -102,7 +102,15 @@ function DepartmentsPage() {
 
   return (
     <main className="departments-page">
-      <header className="page-header">
+  <button
+    type="button"
+    className="page-back-button"
+    onClick={() => window.history.back()}
+  >
+    ← Back
+  </button>
+
+  <header className="page-header">
         <div>
           <p className="page-eyebrow">ORGANIZATION MANAGEMENT</p>
           <h1>Departments</h1>

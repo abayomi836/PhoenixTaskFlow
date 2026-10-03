@@ -1,6 +1,8 @@
 const Task = require("../models/Task");
 const User = require("../models/User");
 const Department = require("../models/Department");
+const { createNotification } = require("../services/notificationService");
+const { sendEmail } = require("../utils/mailer");
 
 // Get tasks
 const getTasks = async (req, res, next) => {
@@ -31,12 +33,12 @@ const getTasks = async (req, res, next) => {
     }
 
     if (req.query.department && req.user.role === "admin") {
-  filter.department = req.query.department;
-}
+      filter.department = req.query.department;
+    }
 
-if (req.query.assignedTo && req.user.role === "admin") {
-  filter.assignedTo = req.query.assignedTo;
-}
+    if (req.query.assignedTo && req.user.role === "admin") {
+      filter.assignedTo = req.query.assignedTo;
+    }
 
     if (req.query.search) {
       filter.$or = [
@@ -142,7 +144,6 @@ const getTaskById = async (req, res, next) => {
 // Create a task
 const createTask = async (req, res, next) => {
   try {
-
     // Employees cannot create tasks
     if (req.user.role === "employee") {
       return res.status(403).json({
@@ -180,34 +181,34 @@ const createTask = async (req, res, next) => {
     }
 
     // Only employees can receive tasks
-if (assignedUser.role !== "employee") {
-  return res.status(400).json({
-    success: false,
-    message: "Tasks can only be assigned to employees",
-    data: null,
-  });
-}
+    if (assignedUser.role !== "employee") {
+      return res.status(400).json({
+        success: false,
+        message: "Tasks can only be assigned to employees",
+        data: null,
+      });
+    }
 
-if (!assignedUser.department) {
-  return res.status(400).json({
-    success: false,
-    message: "Assigned user must belong to a department",
-    data: null,
-  });
-}
+    if (!assignedUser.department) {
+      return res.status(400).json({
+        success: false,
+        message: "Assigned user must belong to a department",
+        data: null,
+      });
+    }
 
-// Managers can only assign tasks within their department
-if (
-  req.user.role === "manager" &&
-  (!req.user.department ||
-    assignedUser.department.toString() !== req.user.department.toString())
-) {
-  return res.status(403).json({
-    success: false,
-    message: "Managers can only assign tasks within their department",
-    data: null,
-  });
-}
+    // Managers can only assign tasks within their department
+    if (
+      req.user.role === "manager" &&
+      (!req.user.department ||
+        assignedUser.department.toString() !== req.user.department.toString())
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Managers can only assign tasks within their department",
+        data: null,
+      });
+    }
 
     // Get the department from the assigned employee
     const department = await Department.findById(assignedUser.department);
@@ -239,6 +240,64 @@ if (
       status: "pending",
       completedAt: null,
     });
+
+    // Create in-app notification for the assigned employee
+    await createNotification({
+      recipient: assignedUser._id,
+      type: "task_assigned",
+      title: "New task assigned",
+      message: `You have been assigned a new task: ${task.title}`,
+      relatedTask: task._id,
+      relatedUser: req.user._id,
+    });
+
+    // Send email notification without blocking task creation
+    try {
+      await sendEmail({
+        to: assignedUser.email,
+        subject: `New task assigned: ${task.title}`,
+        text: `Hello ${assignedUser.name},
+
+You have been assigned a new task on PhoenixTASKFLOW.
+
+Task: ${task.title}
+Priority: ${priority}
+Due date: ${new Date(dueDate).toLocaleDateString()}
+
+Please log in to PhoenixTASKFLOW to view and manage the task.
+
+PhoenixTASKFLOW
+Assign. Track. Complete.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #172033;">
+            <h2 style="color: #0B1F3A;">New task assigned</h2>
+
+            <p>Hello ${assignedUser.name},</p>
+
+            <p>
+              You have been assigned a new task on PhoenixTASKFLOW.
+            </p>
+
+            <div style="padding: 16px; background: #F5F7FB; border: 1px solid #E2E8F0; border-radius: 8px;">
+              <p><strong>Task:</strong> ${task.title}</p>
+              <p><strong>Priority:</strong> ${priority}</p>
+              <p><strong>Due date:</strong> ${new Date(dueDate).toLocaleDateString()}</p>
+            </div>
+
+            <p>
+              Please log in to PhoenixTASKFLOW to view and manage the task.
+            </p>
+
+            <p>
+              <strong>PhoenixTASKFLOW</strong><br />
+              Assign. Track. Complete.
+            </p>
+          </div>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Task assignment email failed:", emailError);
+    }
 
     const populatedTask = await Task.findById(task._id)
       .populate("assignedTo", "name email position")
@@ -329,19 +388,19 @@ const updateTask = async (req, res, next) => {
       }
 
       if (!assignedUser.department) {
-  return res.status(400).json({
-    success: false,
-    message: "Assigned user must belong to a department",
-    data: null,
-  });
-}
+        return res.status(400).json({
+          success: false,
+          message: "Assigned user must belong to a department",
+          data: null,
+        });
+      }
 
-// Managers cannot reassign outside their department
-if (
-  req.user.role === "manager" &&
-  (!req.user.department ||
-    assignedUser.department.toString() !== req.user.department.toString())
-) {
+      // Managers cannot reassign outside their department
+      if (
+        req.user.role === "manager" &&
+        (!req.user.department ||
+          assignedUser.department.toString() !== req.user.department.toString())
+      ) {
         return res.status(403).json({
           success: false,
           message: "Managers can only assign tasks within their department",
@@ -443,6 +502,118 @@ const updateTaskStatus = async (req, res, next) => {
     }
 
     await task.save();
+
+    // Get the user who assigned the task
+    const taskAssigner = await User.findById(task.assignedBy);
+
+    // Create in-app notification
+    await createNotification({
+      recipient: task.assignedBy,
+      type:
+        task.status === "completed"
+          ? "task_completed"
+          : "task_status_changed",
+      title:
+        task.status === "completed"
+          ? "Task completed"
+          : "Task status updated",
+      message: `${req.user.name} changed the status of "${task.title}" to ${task.status}.`,
+      relatedTask: task._id,
+      relatedUser: req.user._id,
+    });
+
+    // Send email notification without blocking the status update
+    if (taskAssigner?.email) {
+      try {
+        await sendEmail({
+          to: taskAssigner.email,
+          subject:
+            task.status === "completed"
+              ? `Task completed: ${task.title}`
+              : `Task status updated: ${task.title}`,
+
+          text:
+            task.status === "completed"
+              ? `Hello,
+
+${req.user.name} has completed the task "${task.title}" on PhoenixTASKFLOW.
+
+Status: Completed
+Completed: ${new Date().toLocaleDateString()}
+
+Please log in to PhoenixTASKFLOW to review the task.
+
+PhoenixTASKFLOW
+Assign. Track. Complete.`
+              : `Hello,
+
+${req.user.name} has updated the status of the task "${task.title}" on PhoenixTASKFLOW.
+
+New status: ${task.status}
+
+Please log in to PhoenixTASKFLOW to review the task.
+
+PhoenixTASKFLOW
+Assign. Track. Complete.`,
+
+          html:
+            task.status === "completed"
+              ? `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #172033;">
+                  <h2 style="color: #0B1F3A;">Task completed</h2>
+
+                  <p>Hello,</p>
+
+                  <p>
+                    <strong>${req.user.name}</strong> has completed the task
+                    <strong>"${task.title}"</strong> on PhoenixTASKFLOW.
+                  </p>
+
+                  <div style="padding: 16px; background: #F5F7FB; border: 1px solid #E2E8F0; border-radius: 8px;">
+                    <p><strong>Status:</strong> Completed</p>
+                    <p><strong>Completed:</strong> ${new Date().toLocaleDateString()}</p>
+                  </div>
+
+                  <p>
+                    Please log in to PhoenixTASKFLOW to review the task.
+                  </p>
+
+                  <p>
+                    <strong>PhoenixTASKFLOW</strong><br />
+                    Assign. Track. Complete.
+                  </p>
+                </div>
+              `
+              : `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #172033;">
+                  <h2 style="color: #0B1F3A;">Task status updated</h2>
+
+                  <p>Hello,</p>
+
+                  <p>
+                    <strong>${req.user.name}</strong> has updated the status of
+                    the task <strong>"${task.title}"</strong>.
+                  </p>
+
+                  <div style="padding: 16px; background: #F5F7FB; border: 1px solid #E2E8F0; border-radius: 8px;">
+                    <p><strong>New status:</strong> ${task.status}</p>
+                  </div>
+
+                  <p>
+                    Please log in to PhoenixTASKFLOW to review the task.
+                  </p>
+
+                  <p>
+                    <strong>PhoenixTASKFLOW</strong><br />
+                    Assign. Track. Complete.
+                  </p>
+                </div>
+              `,
+        });
+      } catch (emailError) {
+        console.error("Task status email failed:", emailError);
+      }
+    }
 
     const populatedTask = await Task.findById(task._id)
       .populate("assignedTo", "name email position")
