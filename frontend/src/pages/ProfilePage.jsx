@@ -56,7 +56,15 @@ function ProfilePage() {
 
     return (
     <main className="profile-page">
-      <header className="page-header">
+  <button
+    type="button"
+    className="page-back-button"
+    onClick={() => window.history.back()}
+  >
+    ← Back
+  </button>
+
+  <header className="page-header">
         <div>
           <p className="page-eyebrow">Account</p>
           <h1>My Profile</h1>
