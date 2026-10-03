@@ -50,6 +50,7 @@ const register = async (req, res, next) => {
       },
     });
   } catch (error) {
+     console.error('Forgot password error:', error)
     next(error);
   }
 };
