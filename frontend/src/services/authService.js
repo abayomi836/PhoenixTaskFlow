@@ -10,6 +10,20 @@ export const loginUser = async (credentials) => {
   return response.data
 }
 
+export const forgotPassword = async (email) => {
+  const response = await api.post('/auth/forgot-password', { email })
+  return response.data
+}
+
+export const resetPassword = async (token, password, confirmPassword) => {
+  const response = await api.post(`/auth/reset-password/${token}`, {
+    password,
+    confirmPassword,
+  })
+
+  return response.data
+}
+
 export const getCurrentUser = async (token) => {
   const response = await api.get('/auth/me', {
     headers: {

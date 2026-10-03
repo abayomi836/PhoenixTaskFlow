@@ -16,6 +16,8 @@ import TasksPage from './pages/TasksPage'
 import CreateTaskPage from './pages/CreateTaskPage'
 import TaskDetailsPage from './pages/TaskDetailsPage'
 import EditTaskPage from './pages/EditTaskPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 import './App.css'
 
@@ -33,6 +35,11 @@ function App() {
             <Route path="/employees" element={<EmployeesPage />} />
             <Route path="/departments" element={<DepartmentsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route
+  path="/reset-password/:token"
+  element={<ResetPasswordPage />}
+/>
           </Route>
 
           {/* Protected application routes */}
