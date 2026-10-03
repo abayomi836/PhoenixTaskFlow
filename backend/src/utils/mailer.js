@@ -1,26 +1,27 @@
-const nodemailer = require("nodemailer");
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: 465,
-secure: true,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
 const sendEmail = async ({ to, subject, text, html }) => {
-  return transporter.sendMail({
-    from: `"PhoenixTASKFLOW" <${process.env.SMTP_USER}>`,
-    to,
-    subject,
-    text,
-    html,
+  const response = await fetch(process.env.GOOGLE_MAILER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      secret: process.env.MAILER_SECRET,
+      to,
+      subject,
+      text,
+      html,
+    }),
   });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.message || "Failed to send email");
+  }
+
+  return result;
 };
 
 module.exports = {
-  transporter,
   sendEmail,
 };
